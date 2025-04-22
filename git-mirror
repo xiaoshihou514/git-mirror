@@ -1,0 +1,77 @@
+#! /usr/bin/env fish
+
+set presets "$HOME/.config/git-mirror.json"
+
+function help
+    echo "Manage read-only git mirrors"
+    echo ""
+    echo "Usage:"
+    echo "  git-mirror add <name> <url>"
+    echo "  git-mirror add_presets"
+    echo "  git-mirror push"
+end
+
+function add
+    set name $argv[1]
+    set url $argv[2]
+    git remote add $name $url
+
+    set root (git rev-parse --show-toplevel)
+    set config "$root/.git-mirror.json"
+    set added "[{\
+        \"name\": \"$name\",\
+        \"url\": \"$url\"\
+    }]"
+    if test -f $config
+        set new (cat $config | jq ". += $added")
+        echo $new | jq . >$config
+    else
+        echo $added | jq . >$config
+    end
+end
+
+function add_preset
+    set p (cat $presets)
+
+    set name (path basename (git rev-parse --show-toplevel))
+    set len (math (echo $p | jq 'length') - 1)
+    for i in (seq 0 $len)
+        set remote_name (string trim -c '"' (echo $p | jq ".[$i].name"))
+        set fmt (string trim -c '"' (echo $p | jq ".[$i].url"))
+        add $remote_name (printf $fmt $name)
+    end
+end
+
+function pushall
+    set root (git rev-parse --show-toplevel)
+    set config "$root/.git-mirror.json"
+    set mirrors (cat $config | jq '.[].name')
+
+    for m in $mirrors
+        echo "Pushing to $m"
+        set remote_name (string trim -c '"' $m)
+        git push --force $remote_name
+    end
+end
+
+# MAIN
+if test (count $argv) -eq 0
+    help
+    return
+end
+
+if not type -q jq
+    echo "`jq` is required for git-mirror"
+    return
+end
+
+switch $argv[1]
+    case add
+        add $argv[2..-1]
+    case add_preset
+        add_preset
+    case push
+        pushall
+    case '*'
+        help
+end
