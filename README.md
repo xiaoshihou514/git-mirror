@@ -17,15 +17,15 @@ Preset file format (default location is `$HOME/.config/git-mirror.json`):
 [
   {
     "name": "codeberg",
-    "url": "ssh://git@codeberg.org/xiaoshihou/git-mirror.git"
+    "url": "ssh://git@codeberg.org/xiaoshihou/%s.git"
   },
   {
     "name": "sourcehut",
-    "url": "git@git.sr.ht:~xiaoshihou/git-mirror"
+    "url": "git@git.sr.ht:~xiaoshihou/%s"
   },
   {
     "name": "gitlab",
-    "url": "git@gitlab.com:xiaoshihou/git-mirror.git"
+    "url": "git@gitlab.com:xiaoshihou/%s.git"
   }
 ]
 ```
