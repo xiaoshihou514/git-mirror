@@ -7,7 +7,7 @@ Manage read-only git mirrors
 
 Usage:
   git-mirror add <name> <url>
-  git-mirror add_presets
+  git-mirror add_preset
   git-mirror push
 ```
 

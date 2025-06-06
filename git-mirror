@@ -7,7 +7,7 @@ function help
     echo ""
     echo "Usage:"
     echo "  git-mirror add <name> <url>"
-    echo "  git-mirror add_presets"
+    echo "  git-mirror add_preset"
     echo "  git-mirror push"
 end
 
