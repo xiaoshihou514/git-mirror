@@ -30,6 +30,23 @@ function add
     end
 end
 
+function init_remote
+    set host $argv[2]
+    set username $argv[3]
+    set name $argv[4]
+
+    switch $argv[1]
+        case forgejo
+            fj --host $host repo create $name
+        case sourcehut
+            hut git create $name --instance $host
+        case gitlab
+            glab repo create $host/$username/$name --public
+        case '*'
+            echo "Unknown remote type $argv[1]"
+    end
+end
+
 function add_preset
     set p (cat $presets)
 
@@ -38,7 +55,12 @@ function add_preset
     for i in (seq 0 $len)
         set remote_name (string trim -c '"' (echo $p | jq ".[$i].name"))
         set fmt (string trim -c '"' (echo $p | jq ".[$i].url"))
-        add $remote_name (printf $fmt $name)
+        set remote_type (string trim -c '"' (echo $p | jq ".[$i].type"))
+        set username (string trim -c '"' (echo $p | jq ".[$i].user"))
+        set host (string trim -c '"' (echo $p | jq ".[$i]host"))
+
+        add $remote_name (printf $fmt $name $username)
+        init_remote $remote_type $host $username $name
     end
 end
 
