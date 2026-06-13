@@ -34,14 +34,18 @@ function init_remote
     set host $argv[2]
     set username $argv[3]
     set name $argv[4]
+    set desc (/bin/cat DESC.md)
+    echo "Initializing $host"
 
     switch $argv[1]
         case forgejo
-            fj --host $host repo create $name
+            fj --host $host repo create $name -d $desc; or true
         case sourcehut
-            hut git create $name --instance $host
+            hut git create $name --instance $host; or true
+            hut git update $name --instance $host -d $desc; or true
         case gitlab
-            glab repo create $host/$username/$name --public
+            glab repo create $host/$username/$name --public; or true
+            glab repo update $host/$username/$name --description $desc; or true
         case '*'
             echo "Unknown remote type $argv[1]"
     end
@@ -57,9 +61,9 @@ function add_preset
         set fmt (string trim -c '"' (echo $p | jq ".[$i].url"))
         set remote_type (string trim -c '"' (echo $p | jq ".[$i].type"))
         set username (string trim -c '"' (echo $p | jq ".[$i].user"))
-        set host (string trim -c '"' (echo $p | jq ".[$i]host"))
+        set host (string trim -c '"' (echo $p | jq ".[$i].host"))
 
-        add $remote_name (printf $fmt $name $username)
+        add $remote_name (printf $fmt $username $name)
         init_remote $remote_type $host $username $name
     end
 end
